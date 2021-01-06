@@ -39,7 +39,7 @@ cursory=0
 G=1
 gravity=G*.25 # the "automatic" drop. 1G = 1 cell per frame, 0.1G = 1 cells per 10 frames, etc...
 gravity=float(gravity)
-velocity=.25 # falling block's velocity,
+velocity=.10 # falling block's velocity,
 velocity=float(velocity)
 
 playerscore=0
@@ -119,18 +119,40 @@ def check_to_clear_row():
 def drop_blocks(droptype='normal'):
     global cursorx; global cursory
     global gravity; global velocity # values that may need to be altered depending on drop.
+    check_to_clear_row() # check for any rows to clear, as the blocks drop.
     # making sure to reset, in order to ensure multiple blocks can be dropped.   
     if droptype=='normal':
-        if cursory < ymaxlimit: # check if block hasn't fallen to the floor. (Will have to update collision detection later when I implement other blocks.)
-            time.sleep(gravity)
-            remove_cursor(cursorx, cursory) # removing previous position
-            cursory += 1 #downward (y is inversed)
-            set_cursor(cursorx, cursory)
+        if cursory < ymaxlimit-1: # stops crashing when block hits the ground. However, after two blocks stack the game gets stuck in some kind of loop.
+            if level[cursory+2][cursorx]!="[X]": # note row is y coord.
+                #if cursory+1 < ymaxlimit:
+                # ^ block detection collision followed by floor detection collision
+                time.sleep(gravity) # only drop at the speed of gravity
+                remove_block()
+                cursory += 1
+                set_block()
+        else: # reset the cursor position for the next block when this one is done.
+            if cursorx==8:
+                cursorx=0
+                cursory=0
+            else:
+                cursorx+=2
+                cursory=0 
     elif droptype=="hard":
-        if cursory < ymaxlimit:
-            remove_cursor(cursorx, cursory)
-            cursory = ymaxlimit # drop block to bottom of floor. later add better collision detection to account for blocks.
-            set_cursor(cursorx, cursory)
+        if cursory < ymaxlimit-1: # stops crashing when block hits the ground. However, after two blocks stack the game gets stuck in some kind of loop.
+            if level[cursory+2][cursorx]!="[X]": # note row is y coord.
+                #if cursory+1 < ymaxlimit:
+                # ^ block detection collision followed by floor detection collision
+                time.sleep(gravity*velocity) # speed the fall of the drop.
+                remove_block()
+                cursory = ymaxlimit-1
+                set_block()
+        else: # reset the cursor position for the next block when this one is done.
+            if cursorx==8:
+                cursorx=0
+                cursory=0
+            else:
+                cursorx+=2
+                cursory=0 
     elif droptype=="soft": # lets try to modify the coordinates around the cursor to make a block
         if cursory < ymaxlimit-1: # stops crashing when block hits the ground. However, after two blocks stack the game gets stuck in some kind of loop.
             if level[cursory+2][cursorx]!="[X]": # note row is y coord.
@@ -162,6 +184,8 @@ def drop_blocks(droptype='normal'):
             else:
                 cursorx+=2
                 cursory=0
+    else:
+        print(f"\nSorry, I do not understand that input."); exit()
 '''
         if cursory < ymaxlimit-1: # since we are using a square block, the cursor will be higher.
             # ^ floor detection collision
@@ -202,9 +226,11 @@ def refreshscreen():
 
 
 def display_screen():
+    droptype = input("\n\n'hard' for hard (instant) drop. 'soft' for soft (fast) drop.\n'normal' for normal drop. \nElse: quit program.\n>>> ")
+    if droptype=='':
+        exit()
     global cursorx; global cursory
     global rungame
- #   i = input("'hard' for hard (instant) drop. 'soft' for soft (fast) drop. Else: watch gravity do its work.")
     while rungame==1:
         if rowscleared>=4:
             rungame=0
@@ -216,16 +242,15 @@ def display_screen():
                 outputstr += columnitem
             outputstr += "\n"
         # lets add in our cursor location and grid coords for debugging:
-        outputstr += f"\nCURSORX:{cursorx}    CURSORY:{cursory}\nXMAX:{xmaxlimit}    YMAX:{ymaxlimit}\n"
+        outputstr += f"\nCURSORX:{cursorx}    CURSORY:{cursory}\nXMAX:{xmaxlimit}    YMAX:{ymaxlimit}\n\nTYPE:{droptype.upper()}\n"
         outputstr += f"\nSCORE:{playerscore}\n{(4-rowscleared)} lines left.\n"
         
 #        if level[cursory+2][cursorx]=="[X]": # note row is y coord.
 #            outputstr+="COLLISION EVENT"
-        check_to_clear_row()
 
         print(outputstr) # instead of printing each iteration, we iterate first in order to print
         # all of the "pixels" on our display.
-        drop_blocks('soft')
+        drop_blocks(droptype)
         time.sleep(.25) # note: this is combined with the "G" variable for a total frame. i.e: 1G*.25=gravity, gravity*sleep(.25)=sleep(.5) aka one frame.
         
         # clear-line / floor collision prototyping
