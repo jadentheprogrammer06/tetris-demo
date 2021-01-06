@@ -156,10 +156,12 @@ def drop_blocks(droptype='normal'):
                 #    cursorx=(xmaxlimit//2)
                 #    cursory=0
         else: # reset the cursor position for the next block when this one is done.
-            # if cursorx is less than xmaxlimit:
-            cursorx+=2
-            cursory=0
-            # else, reset:
+            if cursorx==8:
+                cursorx=0
+                cursory=0
+            else:
+                cursorx+=2
+                cursory=0
 '''
         if cursory < ymaxlimit-1: # since we are using a square block, the cursor will be higher.
             # ^ floor detection collision
@@ -214,7 +216,7 @@ def display_screen():
                 outputstr += columnitem
             outputstr += "\n"
         # lets add in our cursor location and grid coords for debugging:
-        outputstr += f"\nCURSORX:{cursorx}    CURSORY:{cursory}\n"
+        outputstr += f"\nCURSORX:{cursorx}    CURSORY:{cursory}\nXMAX:{xmaxlimit}    YMAX:{ymaxlimit}\n"
         outputstr += f"\nSCORE:{playerscore}\n{(4-rowscleared)} lines left.\n"
         
 #        if level[cursory+2][cursorx]=="[X]": # note row is y coord.
