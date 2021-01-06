@@ -31,7 +31,7 @@ ymaxlimit=(len(level)-1) # bottom most row
 xminlimit=0 # left most column
 xmaxlimit=(len(level[0])-1) # right most column
 
-cursorx=(xmaxlimit//2)
+cursorx=0 #(xmaxlimit//2) # to set the cursor in the center.
 cursory=0
 # set cursor in middle
 
@@ -156,8 +156,10 @@ def drop_blocks(droptype='normal'):
                 #    cursorx=(xmaxlimit//2)
                 #    cursory=0
         else: # reset the cursor position for the next block when this one is done.
-            cursorx=(xmaxlimit//2)
+            # if cursorx is less than xmaxlimit:
+            cursorx+=2
             cursory=0
+            # else, reset:
 '''
         if cursory < ymaxlimit-1: # since we are using a square block, the cursor will be higher.
             # ^ floor detection collision
@@ -194,18 +196,6 @@ def refreshscreen():
 	# for 'posix': mac, linux, unix
 	else:
 		_ = system('clear')
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
